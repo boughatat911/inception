@@ -1,5 +1,5 @@
 # base image: kanst3mlo Debian 11 (stable)
-FROM debian:bullseye
+FROM debian:bookworm
 
 # hna kaninstalliw mariadb-server (database)
 # apt update: bach njib latest list dyal packages

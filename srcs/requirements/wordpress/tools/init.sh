@@ -42,6 +42,6 @@ fi
 
 # create socket folder (important)
 mkdir -p /run/php
-sed -i 's|listen = .*|listen = 9000|' /etc/php/7.4/fpm/pool.d/www.conf
+sed -i 's|listen = .*|listen = 9000|' /etc/php/8.2/fpm/pool.d/www.conf
 # start php-fpm
-php-fpm7.4 -F
+php-fpm8.2 -F
