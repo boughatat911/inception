@@ -2,28 +2,38 @@
 
 set -eu
 
-# start mariadb
-mysqld_safe &
+# create required directory for socket
+mkdir -p /run/mysqld
+chown -R mysql:mysql /run/mysqld
+
+# start mariadb temporarily (no network)
+mysqld --skip-networking --user=mysql &
 
 # wait until mariadb is ready
 until mysqladmin ping --silent; do
     sleep 1
 done
 
+# set root password (safe even if already set)
+mysqladmin -u root password "$MYSQL_ROOT_PASSWORD" || true
+
 # create database
-mysql -e "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE;"
+mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e \
+"CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE;"
 
 # create user
-mysql -e "CREATE USER IF NOT EXISTS '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';"
+mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e \
+"CREATE USER IF NOT EXISTS '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';"
 
-# give permissions
-mysql -e "GRANT ALL PRIVILEGES ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'%';"
+# grant privileges
+mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e \
+"GRANT ALL PRIVILEGES ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'%';"
 
-# refresh permissions
-mysql -e "FLUSH PRIVILEGES;"
+# apply privileges
+mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "FLUSH PRIVILEGES;"
 
-# set root password
-mysqladmin -u root password $MYSQL_ROOT_PASSWORD
+# stop temporary server
+mysqladmin -u root -p"$MYSQL_ROOT_PASSWORD" shutdown
 
-# keep container running
-wait
+# start mariadb as main process (foreground)
+exec mysqld --user=mysql
