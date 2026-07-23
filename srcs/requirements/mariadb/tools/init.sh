@@ -1,39 +1,33 @@
 #!/bin/bash
+set -euo pipefail
 
-set -eu
+DATADIR=/var/lib/mysql
 
-# create required directory for socket
+# Ensure socket directory exists (kept for compatibility)
 mkdir -p /run/mysqld
 chown -R mysql:mysql /run/mysqld
 
-# start mariadb temporarily (no network)
-mysqld --skip-networking --user=mysql &
+if [ -z "$(ls -A "$DATADIR" 2>/dev/null)" ]; then
+  echo "Initializing MariaDB datadir..."
+  # Try modern initialization, fallback to mysql_install_db if not available
+  if mysqld --initialize-insecure --user=mysql --datadir="$DATADIR" 2>/dev/null; then
+    echo "Datadir initialized with mysqld --initialize-insecure"
+  else
+    echo "mysqld --initialize-insecure not available, attempting mysql_install_db"
+    mysql_install_db --user=mysql --datadir="$DATADIR" || true
+  fi
 
-# wait until mariadb is ready
-until mysqladmin ping --silent; do
-    sleep 1
-done
+  cat > /tmp/init.sql <<SQL
+SET @@SESSION.SQL_LOG_BIN=0;
+CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\` ;
+CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
+GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO '${MYSQL_USER}'@'%';
+FLUSH PRIVILEGES;
+SQL
 
-# set root password (safe even if already set)
-mysqladmin -u root password "$MYSQL_ROOT_PASSWORD" || true
-
-# create database
-mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e \
-"CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE;"
-
-# create user
-mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e \
-"CREATE USER IF NOT EXISTS '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';"
-
-# grant privileges
-mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e \
-"GRANT ALL PRIVILEGES ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'%';"
-
-# apply privileges
-mysql -u root -p"$MYSQL_ROOT_PASSWORD" -e "FLUSH PRIVILEGES;"
-
-# stop temporary server
-mysqladmin -u root -p"$MYSQL_ROOT_PASSWORD" shutdown
-
-# start mariadb as main process (foreground)
-exec mysqld --user=mysql
+  # Start MariaDB in foreground and execute init SQL via --init-file (no backgrounding)
+  exec mysqld --user=mysql --init-file=/tmp/init.sql
+else
+  # Existing datadir: run server in foreground
+  exec mysqld --user=mysql
+fi

@@ -1,0 +1,5 @@
+# Ignore local env with secrets
+/srcs/.env
+
+# Node, python, system files (optional)
+*.log
