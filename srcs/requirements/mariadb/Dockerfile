@@ -2,11 +2,11 @@
 FROM debian:bookworm
 
 # hna kaninstalliw mariadb-server (database)
-# apt update: bach njib latest list dyal packages
-# apt clean + rm: bach nsghro size dyal image (ma yb9ach cache)
-RUN apt update && apt install -y mariadb-server \
-    && apt clean \
-    && rm -rf /var/lib/apt/lists/*
+# apt-get update: bach njib latest list dyal packages
+# apt-get clean + rm: bach nsghro size dyal image (ma yb9ach cache)
+RUN apt-get update && apt-get install -y mariadb-server \
+    && apt-get clean \
+    && rm -rf /var/lib/apt-get/lists/*
 
 # kan copyiw config dyal mariadb
 # had file fih bind-address=0.0.0.0 bach y9dr yconnecti wordpress

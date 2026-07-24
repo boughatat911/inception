@@ -1,8 +1,8 @@
 FROM debian:bookworm
 
-RUN apt update && apt install -y nginx openssl gettext-base \
-    && apt clean \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y nginx openssl gettext-base \
+    && apt-get clean \
+    && rm -rf /var/lib/apt-get/lists/*
 
 # create ssl cert
 RUN mkdir -p /etc/nginx/ssl
