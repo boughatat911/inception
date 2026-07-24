@@ -1,17 +1,11 @@
-NAME = inception
+COMPOSE = docker-compose -f srcs/docker-compose.yml
+DATA_PATH = $(HOME)/data
 
-LOGIN ?= $(USER)
-
-DATA_PATH = /home/$(LOGIN)/data
-
-COMPOSE = $(shell if command -v docker-compose >/dev/null 2>&1; then echo docker-compose -f srcs/docker-compose.yml; else echo docker compose -f srcs/docker-compose.yml; fi)
-
-all:
-	mkdir -p $(DATA_PATH)/db
-	mkdir -p $(DATA_PATH)/wp
-	$(MAKE) up
+all: up
 
 up:
+	mkdir -p $(DATA_PATH)/db
+	mkdir -p $(DATA_PATH)/wp
 	$(COMPOSE) up -d --build
 
 down:
@@ -22,7 +16,6 @@ clean:
 
 fclean: clean
 	docker system prune -af
-	docker volume prune -f
 
 re: fclean all
 
