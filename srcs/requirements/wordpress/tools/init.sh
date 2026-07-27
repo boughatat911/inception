@@ -5,7 +5,11 @@ set -eu
 # Wait for MariaDB (30 seconds max)
 timeout=30
 
-until mysqladmin ping -h"$WORDPRESS_DB_HOST" --silent; do
+until mysqladmin ping \
+	-h"$WORDPRESS_DB_HOST" \
+	-u"$WORDPRESS_DB_USER" \
+	-p"$WORDPRESS_DB_PASSWORD" \
+	--silent; do
 	timeout=$((timeout - 1))
 
 	if [ "$timeout" -le 0 ]; then

@@ -29,4 +29,4 @@ EXPOSE 3306
 
 # mlli container ybda → yrun init.sh
 # ila ma darinahach → container ghadi yti7 (ma kayn hata process)
-ENTRYPOINT ["/init.sh"]
+ENTRYPOINT ["./init.sh"]

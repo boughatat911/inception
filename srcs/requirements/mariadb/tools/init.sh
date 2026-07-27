@@ -1,33 +1,20 @@
 #!/bin/bash
-set -euo pipefail
+set -e # exit on error
 
-DATADIR=/var/lib/mysql
-
-# Ensure socket directory exists (kept for compatibility)
-mkdir -p /run/mysqld
+mkdir -p /run/mysqld # socket directory for MariaDB
 chown -R mysql:mysql /run/mysqld
 
-if [ -z "$(ls -A "$DATADIR" 2>/dev/null)" ]; then
-  echo "Initializing MariaDB datadir..."
-  # Try modern initialization, fallback to mysql_install_db if not available
-  if mysqld --initialize-insecure --user=mysql --datadir="$DATADIR" 2>/dev/null; then
-    echo "Datadir initialized with mysqld --initialize-insecure"
-  else
-    echo "mysqld --initialize-insecure not available, attempting mysql_install_db"
-    mysql_install_db --user=mysql --datadir="$DATADIR" || true
-  fi
+if [ -z "$(ls -A /var/lib/mysql 2>/dev/null)" ]; then # check if the data directory is empty
+    mysqld --initialize-insecure --user=mysql
 
-  cat > /tmp/init.sql <<SQL
-SET @@SESSION.SQL_LOG_BIN=0;
-CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\` ;
-CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
-GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO '${MYSQL_USER}'@'%';
-FLUSH PRIVILEGES;
-SQL
-
-  # Start MariaDB in foreground and execute init SQL via --init-file (no backgrounding)
-  exec mysqld --user=mysql --init-file=/tmp/init.sql
-else
-  # Existing datadir: run server in foreground
-  exec mysqld --user=mysql
 fi
+
+cat >/tmp/init.sql <<EOF
+CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};
+CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
+ALTER USER '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
+GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%';
+FLUSH PRIVILEGES;
+EOF
+
+exec mysqld --user=mysql --init-file=/tmp/init.sql

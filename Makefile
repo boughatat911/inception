@@ -12,11 +12,9 @@ down:
 	$(COMPOSE) down
 
 clean:
-	$(COMPOSE) down -v
+	$(COMPOSE) down 
 
 fclean: clean
 	docker system prune -af
 
 re: fclean all
-
-.PHONY: all up down clean fclean re
