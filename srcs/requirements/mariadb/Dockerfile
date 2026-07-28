@@ -23,10 +23,6 @@ COPY tools/init.sh /init.sh
 
 RUN chmod +x /init.sh
 
-# port dyal mariadb (documentation only)
-# kaybayan li docker bli had service kayst3ml 3306
-EXPOSE 3306
-
 # mlli container ybda → yrun init.sh
 # ila ma darinahach → container ghadi yti7 (ma kayn hata process)
 ENTRYPOINT ["./init.sh"]

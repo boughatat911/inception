@@ -12,6 +12,4 @@ COPY tools/init.sh /init.sh
 
 RUN chmod +x /init.sh
 
-EXPOSE 443
-
 ENTRYPOINT ["/init.sh"]
