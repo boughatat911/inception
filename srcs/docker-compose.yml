@@ -9,13 +9,14 @@ services:
     restart: always
     ports:
       - "3306:3306"
-    # env_file: .env
+    env_file: .env
     volumes:
       - db_data:/var/lib/mysql
-      - ../secrets/db_root_password:/run/secrets/db_root_password:ro
-      - ../secrets/mysql_password:/run/secrets/mysql_password:ro
     networks:
       - inception
+    secrets:
+      - db_root_password
+      - mysql_password
 
   wordpress:
     build: ./requirements/wordpress
@@ -24,16 +25,17 @@ services:
     restart: always
     ports:
       - "9000:9000"
-    # env_file: .env
+    env_file: .env
     depends_on:
       - mariadb
     volumes:
       - wp_data:/var/www/html
-      - ../secrets/wp_admin_password:/run/secrets/wp_admin_password:ro
-      - ../secrets/wp_user_password:/run/secrets/wp_user_password:ro
-      - ../secrets/mysql_password:/run/secrets/mysql_password:ro
     networks:
       - inception
+    secrets:
+      - wp_admin_password
+      - wp_user_password
+      - mysql_password
 
   nginx:
     build: ./requirements/nginx
@@ -44,7 +46,7 @@ services:
       - "443:443"
     depends_on:
       - wordpress
-    # env_file: .env
+    env_file: .env
     volumes:
       - wp_data:/var/www/html
     networks:
@@ -66,3 +68,12 @@ volumes:
       type: none
       o: bind
       device: /home/nbougrin/data/wordpress
+secrets:
+  db_root_password:
+    file: ../secrets/db_root_password
+  mysql_password:
+    file: ../secrets/mysql_password
+  wp_admin_password:
+    file: ../secrets/wp_admin_password
+  wp_user_password:
+    file: ../secrets/wp_user_password
