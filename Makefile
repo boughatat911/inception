@@ -4,8 +4,8 @@ DATA_PATH = $(HOME)/data
 all: up
 
 up:
-	mkdir -p $(DATA_PATH)/db
-	mkdir -p $(DATA_PATH)/wp
+	mkdir -p $(DATA_PATH)/mariadb
+	mkdir -p $(DATA_PATH)/wordpress
 	$(COMPOSE) up -d --build
 
 down:

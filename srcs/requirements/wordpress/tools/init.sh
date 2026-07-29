@@ -1,8 +1,8 @@
 #!/bin/sh
+set -eu
 WORDPRESS_DB_PASSWORD=$(cat /run/secrets/mysql_password)
 WORDPRESS_ADMIN_PASSWORD=$(cat /run/secrets/wp_admin_password)
 WORDPRESS_USER_PASSWORD=$(cat /run/secrets/wp_user_password)
-set -eu
 
 # Wait for MariaDB (30 seconds max)
 timeout=30
