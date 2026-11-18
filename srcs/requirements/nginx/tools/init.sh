@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu
+set -e
 
 # create self-signed ssl certificate
 openssl req -x509 -nodes -days 365 \
@@ -9,8 +9,5 @@ openssl req -x509 -nodes -days 365 \
 -out /etc/nginx/ssl/nginx.crt \
 -subj "/C=MA/ST=Casablanca/L=Casa/O=42/OU=1337/CN=$DOMAIN_NAME"
 
-# Substitute DOMAIN_NAME into nginx.conf if envsubst is available
-
-
 # start nginx (foreground)
-nginx -g "daemon off;"
+exec nginx -g "daemon off;"

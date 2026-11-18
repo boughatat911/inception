@@ -1,5 +1,5 @@
 #!/bin/sh
-set -eu
+set -e
 WORDPRESS_DB_PASSWORD=$(cat /run/secrets/mysql_password)
 WORDPRESS_ADMIN_PASSWORD=$(cat /run/secrets/wp_admin_password)
 WORDPRESS_USER_PASSWORD=$(cat /run/secrets/wp_user_password)

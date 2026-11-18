@@ -1,6 +1,6 @@
 #!/bin/bash
 MYSQL_PASSWORD=$(cat /run/secrets/mysql_password)
-set -e # exit on error
+set -e
 
 mkdir -p /run/mysqld # socket directory for MariaDB
 chown -R mysql:mysql /run/mysqld

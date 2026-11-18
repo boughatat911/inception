@@ -1,4 +1,4 @@
-COMPOSE = docker-compose -f srcs/docker-compose.yml
+COMPOSE = docker compose -f srcs/docker-compose.yml
 DATA_PATH = $(HOME)/data
 
 all: up
@@ -12,9 +12,10 @@ down:
 	$(COMPOSE) down
 
 clean:
-	$(COMPOSE) down 
+	$(COMPOSE) down -v
 
 fclean: clean
 	docker system prune -af
+	sudo rm -rf $(DATA_PATH)
 
 re: fclean all

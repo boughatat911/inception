@@ -8,7 +8,6 @@ RUN apt-get update && apt-get install -y \
     curl \
     && apt-get clean \
     && rm -rf /var/lib/apt-get/lists/*
-    # wget \
 
 # install wp-cli (bach n setupiw wordpress)
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
